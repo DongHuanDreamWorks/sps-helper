@@ -57,6 +57,9 @@
 
 ## 🙏 致谢
 
+- **html2canvas**：本项目使用了 [html2canvas](https://github.com/niklasvh/html2canvas) 实现网页截图功能，由 Niklas von Hertzen 开发，遵循 **MIT 许可证** 开源[reference:3][reference:4][reference:5]。
+
 感谢每一位使用、测试、传播本项目的朋友。特别致敬大语言模型技术带来的创造力，让代码生成与协作变得更加开放与高效。
 
 ---
+- **Power By DeepSeek v3.2
