@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="DHDWorks-sps Helper 项目 —— 完全免费、基于AI大语言模型的开源工具。欢迎非商业使用与迭代。">
+    <meta name="theme-color" content="#f8fafc">
+    <title>关于我们 | DHDWorks-sps Helper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f1f5f9 0%, #e9eef3 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.5;
+            color: #0f172a;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+        }
+
+        /* 优雅主容器 */
+        .about-card {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(0px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.02);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* 装饰头 */
+        .hero-badge {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 1.8rem 2rem;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-badge h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-badge h1 span {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.2rem 0.8rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+        }
+
+        .hero-badge p {
+            font-size: 1rem;
+            opacity: 0.85;
+            font-weight: 400;
+        }
+
+        /* 内容区域 */
+        .content {
+            padding: 2rem 2rem 1.8rem;
+        }
+
+        /* 通用章节 */
+        .section {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 2rem;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+        }
+
+        .section-title i {
+            font-size: 1.6rem;
+        }
+
+        .thanks-text {
+            background: #f8fafc;
+            padding: 1.4rem 1.6rem;
+            border-radius: 1.2rem;
+            border-left: 5px solid #3b82f6;
+            font-size: 1.05rem;
+            color: #1e293b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .highlight-link {
+            background: #eef2ff;
+            color: #1e40af;
+            font-weight: 600;
+            padding: 0.1rem 0.3rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .highlight-link:hover {
+            background: #dbeafe;
+            color: #1e3a8a;
+            text-decoration: underline;
+        }
+
+        .ai-stamp {
+            display: inline-flex;
+            align-items: center;
+            background: #e6f7ec;
+            color: #2b6e3c;
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* 对话记录卡片组 */
+        .dialog-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .dialog-item {
+            background: #ffffff;
+            border: 1px solid #e2edff;
+            border-radius: 1rem;
+            padding: 1rem 1.2rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .dialog-item:hover {
+            border-color: #b9d0f8;
+            background: #fefefe;
+            box-shadow: 0 5px 12px -6px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+
+        .dialog-icon {
+            background: #eef2ff;
+            width: 38px;
+            height: 38px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .dialog-info {
+            flex: 1;
+        }
+
+        .dialog-label {
+            font-weight: 650;
+            margin-bottom: 0.2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0.6rem;
+        }
+
+        .dialog-label .badge {
+            font-size: 0.7rem;
+            background: #f1f5f9;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            color: #334155;
+            font-weight: normal;
+        }
+
+        .dialog-link {
+            font-size: 0.9rem;
+            word-break: break-all;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            transition: color 0.2s;
+        }
+
+        .dialog-link:hover {
+            color: #1d4ed8;
+            text-decoration: underline;
+        }
+
+        .link-url-preview {
+            font-size: 0.7rem;
+            color: #5b6e8c;
+            background: #f8fafc;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-family: monospace;
+            display: inline-block;
+        }
+
+        /* 开源及商业声明卡片 */
+        .license-box {
+            background: #fefce8;
+            border: 1px solid #fde047;
+            border-radius: 1.2rem;
+            padding: 1.2rem 1.5rem;
+            margin-top: 0.8rem;
+        }
+
+        .license-box p {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .license-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .check-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .free-tag {
+            background: #dcfce7;
+            color: #15803d;
+            border-radius: 40px;
+            padding: 0.2rem 0.9rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        /* 底部区域 */
+        .footer {
+            background: #f1f5f9;
+            padding: 1.2rem 2rem;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.85rem;
+            color: #334155;
+        }
+
+        .footer a {
+            color: #1e40af;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: #0f2b6d;
+            text-decoration: underline;
+        }
+
+        .footer .icp {
+            margin-right: 0.5rem;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #e2e8f0;
+            margin: 0.8rem 0;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            .content {
+                padding: 1.5rem;
+            }
+            .hero-badge h1 {
+                font-size: 1.6rem;
+            }
+            .section-title {
+                font-size: 1.3rem;
+            }
+            .dialog-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .dialog-icon {
+                align-self: flex-start;
+            }
+            .thanks-text {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* 装饰 */
+        .github-corner {
+            display: inline-block;
+        }
+        button, a {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="about-card">
+        <div class="hero-badge">
+            <h1>
+                DHDWorks-sps Helper
+                <span>⚡ 完全免费</span>
+            </h1>
+        </div>
+
+        <div class="content">
+            <!-- 感谢 & 开源 & AI 来源 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>✨</span> 
+                    项目核心
+                </div>
+                <div class="thanks-text">
+                    <p style="margin-bottom: 0.5rem;">
+                        🤝 <strong>感谢使用 DHDWorks-sps Helper 项目！</strong><br>
+                        本项目完全免费，并且已在 
+                        <a href="https://github.com/DongHuanDreamWorks/sps-helper" class="highlight-link" target="_blank" rel="noopener noreferrer">
+                            github
+                        </a> 
+                        开源。项目 100% 来源于人工智能大语言模型，每一个功能都凝聚着 AI 的创造力。
+                        <span class="ai-stamp">🤖 100% AI 原生</span>
+                    </p>
+                    <p style="margin-top: 0.75rem; font-size: 0.9rem; color: #475569;">
+                        从代码生成到逻辑构建，完全由大语言模型驱动，纯净透明。
+                    </p>
+                </div>
+            </div>
+
+            <!-- 与AI的对话记录 (三个链接) -->
+            <div class="section">
+                <div class="section-title">
+                    <span>💬</span> 
+                    与AI的对话记录
+                    <span style="font-size: 0.75rem; background: #eef2ff; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: normal;">原始对话分享</span>
+                </div>
+                <div class="dialog-grid">
+                    <!-- 对话记录 1 -->
+                    <div class="dialog-item">
+                        <div class="dialog-icon">📄</div>
+                        <div class="dialog-info">
+                            <div class="dialog-label">
+                                <span>对话记录 ①</span>
+                            </div>
+                            <a href="https://chat.deepseek.com/share/n3n73tbcio8xudqun6" class="dialog-link" target="_blank" rel="noopener noreferrer">
+                                🔗 查看完整对话
+                                <span class="link-url-preview">chat.deepseek.com/share/n3n73tbc...</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- 对话记录 2 -->
+                    <div class="dialog-item">
+                        <div class="dialog-icon">📄</div>
+                        <div class="dialog-info">
+                            <div class="dialog-label">
+                                <span>对话记录 ②</span>
+                            </div>
+                            <a href="https://chat.deepseek.com/share/05d01o3rxue55n99hb" class="dialog-link" target="_blank" rel="noopener noreferrer">
+                                🔗 查看完整对话
+                                <span class="link-url-preview">chat.deepseek.com/share/05d01o3rx...</span>
+                            </a>
+                        </div>
+                    </div>
+                    <!-- 对话记录 3 -->
+                    <div class="dialog-item">
+                        <div class="dialog-icon">📄</div>
+                        <div class="dialog-info">
+                            <div class="dialog-label">
+                                <span>对话记录 ③</span>
+                            </div>
+                            <a href="https://chat.deepseek.com/share/5qa2qesiuh1imtz6jh" class="dialog-link" target="_blank" rel="noopener noreferrer">
+                                🔗 查看完整对话
+                                <span class="link-url-preview">chat.deepseek.com/share/5qa2qesiuh...</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <p style="font-size: 0.8rem; color: #4b5563; margin-top: 1rem; background: #f8fafc; padding: 0.5rem 0.8rem; border-radius: 16px;">
+                    💡 以上对话链接记录了本项目的完整 AI 协作过程，欢迎查阅。
+                </p>
+            </div>
+
+            <!-- 开源精神与商业使用限制 + 未使用商业代码声明 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📜</span> 
+                    开源许可 · 道德使用
+                </div>
+                <div class="license-box">
+                    <p>
+                        <span class="check-icon">🔄</span>
+                        <strong>欢迎更新迭代与继续开源</strong> —— 我们鼓励 fork、贡献、二次创新，只要保持开源精神并注明原始项目。
+                    </p>
+                    <p>
+                        <span class="check-icon">🚫</span>
+                        <strong>不欢迎作为商业使用</strong> —— 本项目完全免费面向个人、教育、非盈利场景，严禁将本项目或衍生产品用于任何形式的商业盈利活动。
+                    </p>
+                    <p>
+                        <span class="check-icon">🧹</span>
+                        <strong>未使用任何商业代码</strong> —— 项目代码全部基于 AI 生成，不包含任何闭源商业组件，确保纯净透明。
+                    </p>
+                </div>
+                <div style="margin-top: 1rem; display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: flex-start;">
+                    <span style="background:#e6f0ff; padding: 0.2rem 1rem; border-radius: 40px; font-size:0.75rem;">🏷️ GPL 3.0 license</span>
+                    <span style="background:#e6f0ff; padding: 0.2rem 1rem; border-radius: 40px; font-size:0.75rem;">🌱 社区驱动</span>
+                    <span style="background:#e6f0ff; padding: 0.2rem 1rem; border-radius: 40px; font-size:0.75rem;">🤝 欢迎贡献</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部信息：备案 + 版权 -->
+        <div class="footer">
+            <div>
+                <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer" class="icp">
+                    蒙ICP备2023001541号
+                </a>
+                <span style="margin: 0 6px;">|</span>
+                <span>© 2026 DHDWorks</span>
+            </div>
+            <hr style="margin: 0.6rem 0 0.4rem;">
+            <div style="font-size: 0.7rem;">
+                <a href="https://github.com/DongHuanDreamWorks/sps-helper" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px;">
+                    ⭐ GitHub 仓库
+                </a> 
+                &nbsp;·&nbsp; 
+                反馈建议: 欢迎提交 issue / PR
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+

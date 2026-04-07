@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DHDWorks-StoryBoardScript Helper</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: #2b2b2b;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .top-bar {
+            background: #3c3f41;
+            color: white;
+            padding: 6px 16px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            border-bottom: 1px solid #555;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .top-bar .tab-btn {
+            background: #2d2f31;
+            border: none;
+            color: #ddd;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .top-bar .tab-btn:hover { background: #4a4e52; color: white; }
+        .top-bar .separator {
+            width: 1px;
+            height: 24px;
+            background: #666;
+            margin: 0 8px;
+        }
+        .project-info {
+            margin-left: auto;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            font-size: 13px;
+        }
+        .project-info input {
+            background: #2d2f31;
+            border: 1px solid #555;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            width: 110px;
+        }
+        .left-tools {
+            width: 64px;
+            background: #2d2f31;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            gap: 24px;
+            flex-shrink: 0;
+            border-right: 1px solid #444;
+        }
+        .tool-icon {
+            font-size: 28px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: 0.2s;
+            text-align: center;
+            color: #ccc;
+        }
+        .tool-icon:hover { opacity: 1; transform: scale(1.05); }
+        .workspace {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #1e1e1e;
+            cursor: crosshair;
+        }
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform-origin: 0 0;
+            width: 100%;
+            height: 100%;
+        }
+        .shot-card {
+            position: absolute;
+            width: 360px;
+            background: #2f3136;
+            border-radius: 12px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+            border: 2px solid #4a4e52;
+            cursor: default;
+        }
+        .shot-card.selected {
+            border: 2px solid #ffaa44;
+            box-shadow: 0 0 0 2px rgba(255,170,68,0.5);
+        }
+        .card-table {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 8px;
+        }
+        .row1 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.4fr;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #ddd;
+            align-items: center;
+        }
+        .row1 input, .row1 select {
+            background: #3a3d42;
+            border: 1px solid #555;
+            color: white;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            width: 100%;
+        }
+        .motion-config-area {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            background: #3a3d42;
+            border-radius: 6px;
+            padding: 2px 4px;
+        }
+        .motion-display {
+            flex: 1;
+            font-size: 11px;
+            color: #ffcc88;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .motion-config-btn {
+            background: #5a6a7a;
+            border: none;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 2px 6px;
+        }
+        .motion-config-btn:hover { background: #ffaa44; color: #1e1e1e; }
+        .row2 {
+            background: #25282c;
+            border-radius: 8px;
+            min-height: 110px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .preview-img {
+            max-width: 100%;
+            max-height: 110px;
+            object-fit: contain;
+            background: #111;
+        }
+        .img-placeholder {
+            color: #aaa;
+            font-size: 12px;
+            text-align: center;
+            padding: 20px;
+        }
+        .row3 {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .row3 input, .row3 textarea {
+            background: #3a3d42;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 6px;
+            padding: 4px;
+            flex: 1;
+            font-size: 12px;
+            font-family: inherit;
+        }
+        .row3 textarea { resize: vertical; }
+        .duration-input { width: 70px; }
+        .selection-rect {
+            position: absolute;
+            border: 1px dashed #ffaa44;
+            background: rgba(255,170,68,0.2);
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .context-menu {
+            position: fixed;
+            background: #2d2f31;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px black;
+            z-index: 2000;
+            padding: 6px 0;
+            width: 150px;
+        }
+        .context-menu div {
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .context-menu div:hover { background: #4a4e52; }
+        .toast-msg {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: #ffaa44;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 9999;
+        }
+        input, select, textarea { user-select: text; }
+        .help-panel {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: #2d2f31ee;
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 12px 18px;
+            color: #ffdd99;
+            font-size: 12px;
+            border: 1px solid #ffaa44;
+            z-index: 999;
+            max-width: 260px;
+            pointer-events: none;
+        }
+        .modal-overlay {
+            position: fixed;
+            top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(3px);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #2d2f31;
+            border-radius: 20px;
+            width: 520px;
+            max-width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            color: #eee;
+            padding: 20px;
+            box-shadow: 0 10px 30px black;
+            border: 1px solid #ffaa44;
+        }
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #ffaa66;
+            border-left: 4px solid #ffaa66;
+            padding-left: 12px;
+        }
+        .modal-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #4a4e52;
+            padding-bottom: 12px;
+        }
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 6px;
+        }
+        .radio-group label, .checkbox-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #3a3d42;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .param-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .param-row input {
+            background: #1e1e1e;
+            border: 1px solid #666;
+            color: white;
+            padding: 6px 8px;
+            border-radius: 8px;
+            width: 100px;
+        }
+        .btn-ok {
+            background: #5a6e3c;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .direction-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <button class="tab-btn" id="newProjectBtn">📁 新建工程</button>
+    <button class="tab-btn" id="newSceneBtn">🎬 重置项目</button>
+    <button class="tab-btn" id="addShotBtn" style="background:#5a6e3c;">➕ 新增分镜</button>
+    <button class="tab-btn" id="reorderNumberBtn" style="background:#4a5a6e;">🔢 重排编号</button>
+    <div class="separator"></div>
+    <button class="tab-btn" id="exportJsonBtn">📄 导出 JSON</button>
+    <button class="tab-btn" id="exportPngBtn">🖼️ 导出分镜PNG</button>
+    <div class="separator"></div>
+	<button class="tab-btn" id="helpBtn0" style="background:#4a5a6e;" onclick="window.location.href='http://sps.dhdworks.cn/aboutus.html'">关于我们</button>
+    <button class="tab-btn" id="helpBtn" style="background:#4a5a6e;">❓ 帮助</button>
+    <div class="project-info">
+        <span>剧名:</span>
+        <input type="text" id="dramaName" placeholder="剧名" value="">
+        <span>作者:</span>
+        <input type="text" id="authorName" placeholder="Type Name Here" value="">
+    </div>
+</div>
+
+<div style="display: flex; flex: 1; overflow: hidden;">
+    <div class="left-tools">
+        <div class="tool-icon" title="选择模式(默认)">🖱️</div>
+        <div class="tool-icon" id="autoArrangeBtn" title="Tab 自动排列选中/全部">📐</div>
+        <div class="tool-icon" id="zoomInBtn" title="放大画布">➕</div>
+        <div class="tool-icon" id="zoomOutBtn" title="缩小画布">➖</div>
+        <div class="tool-icon" id="resetViewBtn" title="重置视图">🔄</div>
+    </div>
+    <div class="workspace" id="workspace">
+        <div class="canvas-container" id="canvasContainer"></div>
+    </div>
+</div>
+<div id="helpPanel" class="help-panel" style="display: none;">
+    <h4>帮助</h4>
+    <p>可使用快捷键</p>
+    <p>Ctrl+c/v复制粘贴镜头组</p>
+    <p>Ctrl+Z 撤销</p>
+	<p>其他功能等待更新</p>
+</div>
+	<div id="helpPanel" class="help-panel" style="display: none;">
+    <h4>帮助</h4>
+    <p>可使用快捷键</p>
+    <p>Ctrl+c/v复制粘贴镜头组</p>
+    <p>Ctrl+Z 撤销</p>
+	<p>其他功能等待更新</p>
+</div>
+
+<script>
+    (function(){
+        // ----------------------------- 全局变量 -----------------------------
+        let shots = [];
+        let selectedShotIds = new Set();
+        let nextId = 1;
+        let clipboardShots = [];
+        let dirtyFlag = false;
+
+        // 历史记录
+        let historyPool = [];
+        let historyPointer = -1;
+        const MAX_HISTORY = 40;
+
+        // 视图变换
+        let scale = 1, panX = 0, panY = 0;
+        let isPanning = false, panStart = {x:0,y:0};
+        let isSelecting = false, selectionStart = {x:0,y:0}, selectionRect = null;
+        let dragTargetShot = null, dragStartMouse = {x:0,y:0}, dragStartPos = {x:0,y:0}, isDragging = false, dragRecorded = false;
+
+        // DOM 元素
+        let workspace, container;
+
+        // ----------------------------- 辅助函数 -----------------------------
+        function showToast(msg, dur=1500) {
+            let t = document.querySelector('.toast-msg');
+            if (t) t.remove();
+            t = document.createElement('div');
+            t.className = 'toast-msg';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), dur);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        }
+
+        function recordAction(action) {
+            if (historyPointer < historyPool.length - 1) {
+                historyPool = historyPool.slice(0, historyPointer + 1);
+            }
+            historyPool.push(action);
+            if (historyPool.length > MAX_HISTORY) historyPool.shift();
+            historyPointer = historyPool.length - 1;
+            dirtyFlag = true;
+        }
+
+        function undo() {
+            if (historyPointer < 0) { showToast("无操作可撤销"); return; }
+            const action = historyPool[historyPointer];
+            switch (action.type) {
+                case 'ADD':
+                    const idxAdd = shots.findIndex(s => s.id === action.shotId);
+                    if (idxAdd !== -1) shots.splice(idxAdd, 1);
+                    break;
+                case 'DELETE':
+                    shots.splice(action.index, 0, { ...action.shotData, id: action.shotId });
+                    if (action.shotId >= nextId) nextId = action.shotId + 1;
+                    break;
+                case 'MODIFY':
+                    const shotMod = shots.find(s => s.id === action.shotId);
+                    if (shotMod) Object.assign(shotMod, action.oldProps);
+                    break;
+                case 'MOVE':
+                    const shotMove = shots.find(s => s.id === action.shotId);
+                    if (shotMove) { shotMove.x = action.oldX; shotMove.y = action.oldY; }
+                    break;
+                case 'IMAGE':
+                    const shotImg = shots.find(s => s.id === action.shotId);
+                    if (shotImg) shotImg.imageData = action.oldImage;
+                    break;
+                case 'REORDER':
+                    shots.forEach(shot => { if (action.oldNumberMap[shot.id]) shot.number = action.oldNumberMap[shot.id]; });
+                    break;
+            }
+            historyPointer--;
+            selectedShotIds.clear();
+            renderAllShots();
+            showToast("已撤销");
+            markDirty();
+        }
+
+        function markDirty() { dirtyFlag = true; }
+        function resetDirty() { dirtyFlag = false; }
+
+        // ----------------------------- 运动配置 -----------------------------
+        function getDefaultMotionData() {
+            return {
+                type: 'fixed',
+                mobileSubType: 'full',
+                direction: [],
+                heightChange: { enabled: false, start: 0, end: 0, unit: 'cm' },
+                lateralChange: { enabled: false, start: 0, end: 0, unit: 'cm' },
+                rotationAngle: 0,
+                cameraMove: '',
+                tripodAngle: { tilt: 0, pan: 0 }
+            };
+        }
+
+        function generateMotionDisplay(motionData) {
+            if (!motionData) return "固定";
+            if (motionData.type === 'fixed') return "固定 (完全固定)";
+            let parts = [];
+            if (motionData.mobileSubType === 'tripod') {
+                parts.push(`三脚架角度变动 (俯仰${motionData.tripodAngle?.tilt || 0}° / 水平${motionData.tripodAngle?.pan || 0}°)`);
+            } else {
+                if (motionData.direction && motionData.direction.length) parts.push(`方向:${motionData.direction.join(',')}`);
+                if (motionData.heightChange?.enabled) parts.push(`高度:${motionData.heightChange.start}→${motionData.heightChange.end}${motionData.heightChange.unit}`);
+                if (motionData.lateralChange?.enabled) parts.push(`横向:${motionData.lateralChange.start}→${motionData.lateralChange.end}${motionData.lateralChange.unit}`);
+                if (motionData.rotationAngle && motionData.rotationAngle !== 0) parts.push(`旋转${motionData.rotationAngle}°`);
+            }
+            if (motionData.cameraMove && motionData.cameraMove !== '') parts.push(`[${motionData.cameraMove}]`);
+            if (parts.length === 0) return "移动 (基础)";
+            return `移动 · ${parts.join(' · ')}`;
+        }
+
+        function upgradeMotionData(shot) {
+            if (shot.motionData) return;
+            const newData = getDefaultMotionData();
+            if (shot.motion === "固定" || shot.motion?.includes("固定")) newData.type = 'fixed';
+            else newData.type = 'mobile';
+            shot.motionData = newData;
+            shot.motion = generateMotionDisplay(newData);
+        }
+
+        function saveMotionConfig(shot, newMotionData) {
+            const oldMotionData = { ...shot.motionData };
+            const oldMotionStr = shot.motion;
+            shot.motionData = newMotionData;
+            shot.motion = generateMotionDisplay(newMotionData);
+            if (JSON.stringify(oldMotionData) !== JSON.stringify(newMotionData)) {
+                recordAction({
+                    type: 'MODIFY',
+                    shotId: shot.id,
+                    oldProps: { motionData: oldMotionData, motion: oldMotionStr },
+                    newProps: { motionData: newMotionData, motion: shot.motion }
+                });
+                markDirty();
+            }
+            renderAllShots();
+        }
+
+        // 运动配置模态框（简化版，保持功能）
+        function openMotionConfig(shot) {
+            upgradeMotionData(shot);
+            const data = JSON.parse(JSON.stringify(shot.motionData));
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>🎥 运动 & 镜头方式配置</h3>
+                    <div class="modal-section">
+                        <label>📌 运动大类</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="motionType" value="fixed" ${data.type === 'fixed' ? 'checked' : ''}> 固定</label>
+                            <label><input type="radio" name="motionType" value="mobile" ${data.type === 'mobile' ? 'checked' : ''}> 移动</label>
+                        </div>
+                    </div>
+                    <div id="mobileSubSection" style="display: ${data.type === 'mobile' ? 'block' : 'none'};">
+                        <div class="modal-section">
+                            <label>🔧 移动子类型</label>
+                            <div class="radio-group">
+                                <label><input type="radio" name="mobileSub" value="tripod" ${data.mobileSubType === 'tripod' ? 'checked' : ''}> 三脚架角度变动</label>
+                                <label><input type="radio" name="mobileSub" value="full" ${data.mobileSubType === 'full' ? 'checked' : ''}> 全量变动</label>
+                            </div>
+                        </div>
+                        <div id="tripodPanel" style="display: ${data.mobileSubType === 'tripod' ? 'block' : 'none'};">
+                            <div class="modal-section">
+                                <label>🎛️ 三脚架角度</label>
+                                <div class="param-row">
+                                    <span>俯仰角(°):</span><input type="number" id="tripodTilt" value="${data.tripodAngle?.tilt || 0}" step="5">
+                                    <span>水平角(°):</span><input type="number" id="tripodPan" value="${data.tripodAngle?.pan || 0}" step="5">
+                                </div>
+                            </div>
+                        </div>
+                        <div id="fullPanel" style="display: ${data.mobileSubType === 'full' ? 'block' : 'none'};">
+                            <div class="modal-section">
+                                <label>🧭 方向</label>
+                                <div class="direction-group checkbox-group">
+                                    ${['左','右','前','后','上','下'].map(dir => `<label><input type="checkbox" class="dirCheck" value="${dir}" ${data.direction.includes(dir) ? 'checked' : ''}> ${dir}</label>`).join('')}
+                                </div>
+                            </div>
+                            <div class="modal-section">
+                                <label>📏 高度变动</label>
+                                <label><input type="checkbox" id="heightEnable" ${data.heightChange?.enabled ? 'checked' : ''}> 启用</label>
+                                <div class="param-row">
+                                    <span>起始</span><input type="number" id="heightStart" value="${data.heightChange?.start || 0}">
+                                    <span>结束</span><input type="number" id="heightEnd" value="${data.heightChange?.end || 0}">
+                                </div>
+                            </div>
+                            <div class="modal-section">
+                                <label>↔️ 横向变量</label>
+                                <label><input type="checkbox" id="lateralEnable" ${data.lateralChange?.enabled ? 'checked' : ''}> 启用</label>
+                                <div class="param-row">
+                                    <span>起始</span><input type="number" id="lateralStart" value="${data.lateralChange?.start || 0}">
+                                    <span>结束</span><input type="number" id="lateralEnd" value="${data.lateralChange?.end || 0}">
+                                </div>
+                            </div>
+                            <div class="modal-section">
+                                <label>🔄 旋转角度</label>
+                                <input type="range" id="rotationSlider" min="0" max="360" value="${data.rotationAngle || 0}" style="width:100%">
+                                <div><span id="rotationVal">${data.rotationAngle || 0}</span>°</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-section">
+                        <label>🎬 镜头方式</label>
+                        <div class="radio-group">
+                            ${['','推','拉','摇','移','跟','甩'].map(move => `<label><input type="radio" name="cameraMove" value="${move}" ${(data.cameraMove === move) ? 'checked' : ''}> ${move === '' ? '无' : move}</label>`).join('')}
+                        </div>
+                    </div>
+                    <button class="btn-ok" id="confirmMotionBtn">✅ 确认</button>
+                    <button class="btn-ok" style="background:#5a5a6e; margin-top:8px;" id="cancelMotionBtn">取消</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            const updatePanels = () => {
+                const isMobile = modal.querySelector('input[name="motionType"]:checked')?.value === 'mobile';
+                modal.querySelector('#mobileSubSection').style.display = isMobile ? 'block' : 'none';
+                if (isMobile) {
+                    const subVal = modal.querySelector('input[name="mobileSub"]:checked')?.value;
+                    modal.querySelector('#tripodPanel').style.display = subVal === 'tripod' ? 'block' : 'none';
+                    modal.querySelector('#fullPanel').style.display = subVal === 'full' ? 'block' : 'none';
+                }
+            };
+            modal.querySelectorAll('input[name="motionType"], input[name="mobileSub"]').forEach(r => r.addEventListener('change', updatePanels));
+            updatePanels();
+
+            const slider = modal.querySelector('#rotationSlider');
+            if (slider) slider.addEventListener('input', (e) => { modal.querySelector('#rotationVal').innerText = e.target.value; });
+
+            modal.querySelector('#confirmMotionBtn').onclick = () => {
+                const newData = getDefaultMotionData();
+                newData.type = modal.querySelector('input[name="motionType"]:checked')?.value;
+                if (newData.type === 'mobile') {
+                    newData.mobileSubType = modal.querySelector('input[name="mobileSub"]:checked')?.value;
+                    if (newData.mobileSubType === 'tripod') {
+                        newData.tripodAngle = {
+                            tilt: parseInt(modal.querySelector('#tripodTilt')?.value || 0),
+                            pan: parseInt(modal.querySelector('#tripodPan')?.value || 0)
+                        };
+                    } else {
+                        newData.direction = Array.from(modal.querySelectorAll('.dirCheck:checked')).map(cb => cb.value);
+                        newData.heightChange = {
+                            enabled: modal.querySelector('#heightEnable')?.checked || false,
+                            start: parseFloat(modal.querySelector('#heightStart')?.value || 0),
+                            end: parseFloat(modal.querySelector('#heightEnd')?.value || 0),
+                            unit: 'cm'
+                        };
+                        newData.lateralChange = {
+                            enabled: modal.querySelector('#lateralEnable')?.checked || false,
+                            start: parseFloat(modal.querySelector('#lateralStart')?.value || 0),
+                            end: parseFloat(modal.querySelector('#lateralEnd')?.value || 0),
+                            unit: 'cm'
+                        };
+                        newData.rotationAngle = parseInt(modal.querySelector('#rotationSlider')?.value || 0);
+                    }
+                }
+                const cameraMoveRadio = modal.querySelector('input[name="cameraMove"]:checked');
+                if (cameraMoveRadio) newData.cameraMove = cameraMoveRadio.value;
+                saveMotionConfig(shot, newData);
+                modal.remove();
+            };
+            modal.querySelector('#cancelMotionBtn').onclick = () => modal.remove();
+        }
+
+        // ----------------------------- 图片导入 (修复版) -----------------------------
+        function setShotImage(shot, file) {
+            if (!shot) return;
+            if (!file || !file.type || file.type.indexOf('image') === -1) {
+                showToast("请选择图片文件");
+                return;
+            }
+
+            const oldImage = shot.imageData;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // 裁切为 4:3 并压缩
+                    const targetWidth = 1280;
+                    const targetHeight = (targetWidth * 3) / 4;
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetWidth;
+                    canvas.height = targetHeight;
+                    const ctx = canvas.getContext('2d');
+                    let sx = 0, sy = 0, sw = img.width, sh = img.height;
+                    const ratio = img.width / img.height;
+                    if (ratio > 4/3) {
+                        sw = img.height * 4/3;
+                        sx = (img.width - sw) / 2;
+                    } else {
+                        sh = img.width / (4/3);
+                        sy = (img.height - sh) / 2;
+                    }
+                    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+                    const newImage = canvas.toDataURL('image/jpeg', 0.85);
+                    recordAction({ type: 'IMAGE', shotId: shot.id, oldImage, newImage });
+                    shot.imageData = newImage;
+                    renderAllShots();
+                    showToast("图片已导入");
+                };
+                img.onerror = () => showToast("图片加载失败");
+                img.src = e.target.result;
+            };
+            reader.onerror = () => showToast("读取文件失败");
+            reader.readAsDataURL(file);
+        }
+
+        // ----------------------------- 镜头操作 -----------------------------
+        function createShot(x, y, customNumber = null) {
+            const id = nextId++;
+            return {
+                id, x, y, width: 360, height: 250,
+                number: customNumber || String(shots.length + 1).padStart(2,'0'),
+                sceneType: "中景",
+                motion: "固定",
+                motionData: getDefaultMotionData(),
+                imageData: null,
+                note: "",
+                duration: "3s",
+                extra: ""
+            };
+        }
+
+        function renderAllShots() {
+            if (!container) return;
+            container.innerHTML = '';
+            shots.forEach(shot => {
+                upgradeMotionData(shot);
+                const card = document.createElement('div');
+                card.className = 'shot-card' + (selectedShotIds.has(shot.id) ? ' selected' : '');
+                card.style.left = `${shot.x}px`;
+                card.style.top = `${shot.y}px`;
+                card.style.width = `${shot.width}px`;
+                card.setAttribute('data-id', shot.id);
+
+                card.innerHTML = `
+                    <div class="card-table">
+                        <div class="row1">
+                            <input type="text" class="shot-number" value="${escapeHtml(shot.number)}">
+                            <select class="scene-type">
+                                <option ${shot.sceneType === '远景' ? 'selected' : ''}>远景</option>
+                                <option ${shot.sceneType === '全景' ? 'selected' : ''}>全景</option>
+                                <option ${shot.sceneType === '中景' ? 'selected' : ''}>中景</option>
+                                <option ${shot.sceneType === '近景' ? 'selected' : ''}>近景</option>
+                                <option ${shot.sceneType === '特写' ? 'selected' : ''}>特写</option>
+                            </select>
+                            <div class="motion-config-area">
+                                <div class="motion-display" title="${escapeHtml(shot.motion)}">${escapeHtml(shot.motion)}</div>
+                                <button class="motion-config-btn">⚙️</button>
+                            </div>
+                        </div>
+                        <div class="row2 img-area">
+                            ${shot.imageData ? `<img class="preview-img" src="${shot.imageData}">` : `<div class="img-placeholder">📸 点击导入/粘贴图片<br>(Ctrl+V)</div>`}
+                            <input type="file" accept="image/*" style="display:none;" class="img-upload">
+                        </div>
+                        <div class="row3">
+                            <textarea class="note-input" placeholder="备注" rows="1">${escapeHtml(shot.note)}</textarea>
+                            <input type="text" class="duration-input" value="${escapeHtml(shot.duration)}">
+                            <input type="text" class="extra-input" value="${escapeHtml(shot.extra)}" placeholder="其他">
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+
+                // 绑定卡片事件（使用直接绑定，更可靠）
+                const imgArea = card.querySelector('.img-area');
+                const fileUpload = card.querySelector('.img-upload');
+                
+                // 点击图片区域触发文件选择
+                imgArea.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    fileUpload.click();
+                });
+
+                // 文件选择变更事件
+                fileUpload.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        setShotImage(shot, e.target.files[0]);
+                    }
+                    e.target.value = ''; // 清空
+                });
+
+                // 卡片粘贴事件
+                card.addEventListener('paste', (e) => {
+                    e.stopPropagation();
+                    const items = e.clipboardData.items;
+                    for (let item of items) {
+                        if (item.type.indexOf('image') !== -1) {
+                            const blob = item.getAsFile();
+                            if (blob) {
+                                setShotImage(shot, blob);
+                                e.preventDefault();
+                            }
+                            break;
+                        }
+                    }
+                });
+
+                // 运动配置按钮
+                card.querySelector('.motion-config-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openMotionConfig(shot);
+                });
+
+                // 防止输入区域的事件冒泡影响卡片选中
+                const interactiveEls = card.querySelectorAll('input, select, textarea, button');
+                interactiveEls.forEach(el => {
+                    el.addEventListener('mousedown', (e) => e.stopPropagation());
+                    el.addEventListener('click', (e) => e.stopPropagation());
+                });
+                imgArea.addEventListener('mousedown', (e) => e.stopPropagation());
+            });
+        }
+
+        // 事件委托（用于动态绑定）
+        function bindEvents() {
+            // 卡片内容修改（使用事件委托）
+            container.addEventListener('change', (e) => {
+                const card = e.target.closest('.shot-card');
+                if (!card) return;
+                const id = parseInt(card.dataset.id);
+                const shot = shots.find(s => s.id === id);
+                if (!shot) return;
+                
+                if (e.target.classList.contains('shot-number')) {
+                    const old = shot.number;
+                    const newVal = e.target.value;
+                    if (old !== newVal) {
+                        recordAction({ type: 'MODIFY', shotId: shot.id, oldProps: { number: old }, newProps: { number: newVal } });
+                        shot.number = newVal;
+                    }
+                } else if (e.target.classList.contains('scene-type')) {
+                    const old = shot.sceneType;
+                    const newVal = e.target.value;
+                    if (old !== newVal) {
+                        recordAction({ type: 'MODIFY', shotId: shot.id, oldProps: { sceneType: old }, newProps: { sceneType: newVal } });
+                        shot.sceneType = newVal;
+                    }
+                } else if (e.target.classList.contains('note-input')) {
+                    const old = shot.note;
+                    const newVal = e.target.value;
+                    if (old !== newVal) {
+                        recordAction({ type: 'MODIFY', shotId: shot.id, oldProps: { note: old }, newProps: { note: newVal } });
+                        shot.note = newVal;
+                    }
+                } else if (e.target.classList.contains('duration-input')) {
+                    const old = shot.duration;
+                    const newVal = e.target.value;
+                    if (old !== newVal) {
+                        recordAction({ type: 'MODIFY', shotId: shot.id, oldProps: { duration: old }, newProps: { duration: newVal } });
+                        shot.duration = newVal;
+                    }
+                } else if (e.target.classList.contains('extra-input')) {
+                    const old = shot.extra;
+                    const newVal = e.target.value;
+                    if (old !== newVal) {
+                        recordAction({ type: 'MODIFY', shotId: shot.id, oldProps: { extra: old }, newProps: { extra: newVal } });
+                        shot.extra = newVal;
+                    }
+                }
+                markDirty();
+            });
+
+            // 卡片选中（用于直接点击卡片区域）
+            container.addEventListener('mousedown', (e) => {
+                const card = e.target.closest('.shot-card');
+                if (!card) return;
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+                e.stopPropagation();
+                const id = parseInt(card.dataset.id);
+                if (e.ctrlKey) {
+                    if (selectedShotIds.has(id)) selectedShotIds.delete(id);
+                    else selectedShotIds.add(id);
+                } else {
+                    if (!selectedShotIds.has(id)) {
+                        selectedShotIds.clear();
+                        selectedShotIds.add(id);
+                    }
+                }
+                renderAllShots();
+            });
+
+            // 右键菜单
+            container.addEventListener('contextmenu', (e) => {
+                const card = e.target.closest('.shot-card');
+                if (card) {
+                    e.preventDefault();
+                    const id = parseInt(card.dataset.id);
+                    if (!selectedShotIds.has(id)) {
+                        selectedShotIds.clear();
+                        selectedShotIds.add(id);
+                        renderAllShots();
+                    }
+                    showContextMenu(e.clientX, e.clientY);
+                }
+            });
+        }
+
+        function showContextMenu(x, y) {
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.innerHTML = `<div id="ctxNew">✨ 新建镜头</div><div id="ctxCopy">📋 复制镜头</div><div id="ctxDelete">🗑️ 删除镜头</div>`;
+            document.body.appendChild(menu);
+            const close = () => { menu.remove(); document.removeEventListener('click', close); };
+            setTimeout(() => document.addEventListener('click', close), 10);
+            document.getElementById('ctxNew').onclick = () => {
+                const rect = workspace.getBoundingClientRect();
+                const worldX = (x - rect.left - panX) / scale;
+                const worldY = (y - rect.top - panY) / scale;
+                const newShot = createShot(worldX - 180, worldY - 125);
+                shots.push(newShot);
+                recordAction({ type: 'ADD', shotId: newShot.id, shotData: { ...newShot, id: null }, index: shots.length-1 });
+                renderAllShots();
+                markDirty();
+                close();
+            };
+            document.getElementById('ctxCopy').onclick = () => { copySelectedShots(); close(); };
+            document.getElementById('ctxDelete').onclick = () => { deleteSelectedShots(); close(); };
+        }
+
+        function copySelectedShots() {
+            clipboardShots = shots.filter(s => selectedShotIds.has(s.id)).map(s => ({ ...s, id: null, motionData: JSON.parse(JSON.stringify(s.motionData)) }));
+            showToast(`已复制 ${clipboardShots.length} 个镜头`);
+        }
+        
+        function deleteSelectedShots() {
+            if (selectedShotIds.size === 0) return;
+            const toDel = shots.filter(s => selectedShotIds.has(s.id));
+            toDel.forEach(shot => {
+                const idx = shots.findIndex(s => s.id === shot.id);
+                recordAction({ type: 'DELETE', shotId: shot.id, shotData: { ...shot, id: null }, index: idx });
+            });
+            shots = shots.filter(s => !selectedShotIds.has(s.id));
+            selectedShotIds.clear();
+            renderAllShots();
+            markDirty();
+        }
+        
+        function pasteShotsAt(cx, cy) {
+            if (!clipboardShots.length) return;
+            let offX = 0, offY = 0;
+            clipboardShots.forEach(tmpl => {
+                const newShot = createShot(cx + offX, cy + offY, tmpl.number);
+                newShot.sceneType = tmpl.sceneType;
+                newShot.motion = tmpl.motion;
+                newShot.motionData = JSON.parse(JSON.stringify(tmpl.motionData));
+                newShot.imageData = tmpl.imageData;
+                newShot.note = tmpl.note;
+                newShot.duration = tmpl.duration;
+                newShot.extra = tmpl.extra;
+                shots.push(newShot);
+                recordAction({ type: 'ADD', shotId: newShot.id, shotData: { ...newShot, id: null }, index: shots.length-1 });
+                offX += 30; offY += 20;
+            });
+            renderAllShots();
+            markDirty();
+            showToast(`粘贴 ${clipboardShots.length} 个镜头`);
+        }
+        
+        function cutSelectedShots() { copySelectedShots(); deleteSelectedShots(); showToast(`剪切 ${clipboardShots.length} 个镜头`); }
+        
+        function autoArrange() {
+            let targets = selectedShotIds.size > 0 ? shots.filter(s => selectedShotIds.has(s.id)) : shots;
+            const startX = 80, startY = 80, colGap = 380, rowGap = 280, cols = 6;
+            targets.forEach((shot, idx) => {
+                const newX = startX + (idx % cols) * colGap;
+                const newY = startY + Math.floor(idx / cols) * rowGap;
+                if (shot.x !== newX || shot.y !== newY) {
+                    recordAction({ type: 'MOVE', shotId: shot.id, oldX: shot.x, oldY: shot.y, newX, newY });
+                    shot.x = newX; shot.y = newY;
+                }
+            });
+            renderAllShots();
+            markDirty();
+            showToast("已自动排列");
+        }
+        
+        function reorderShotNumbers() {
+            const oldMap = {};
+            shots.forEach(s => oldMap[s.id] = s.number);
+            shots.sort((a,b) => (Math.abs(a.y-b.y) < 50 ? a.x-b.x : a.y-b.y)).forEach((s,i) => s.number = String(i+1).padStart(2,'0'));
+            recordAction({ type: 'REORDER', oldNumberMap: oldMap });
+            renderAllShots();
+            markDirty();
+            showToast("编号已重排");
+        }
+        
+        function addShotAfterSelected() {
+            let baseIdx = shots.length;
+            if (selectedShotIds.size === 1) {
+                const id = Array.from(selectedShotIds)[0];
+                const idx = shots.findIndex(s => s.id === id);
+                if (idx !== -1) baseIdx = idx + 1;
+            }
+            let newX = 100, newY = 100;
+            if (shots.length) newX = shots[shots.length-1].x + 40;
+            const newShot = createShot(newX, newY);
+            shots.splice(baseIdx, 0, newShot);
+            recordAction({ type: 'ADD', shotId: newShot.id, shotData: { ...newShot, id: null }, index: baseIdx });
+            renderAllShots();
+            markDirty();
+        }
+
+        // 导出功能
+        async function exportStoryboardPNG() {
+            if (shots.length === 0) { showToast("没有分镜内容"); return; }
+            const drama = document.getElementById('dramaName').value || "未命名";
+            const author = document.getElementById('authorName').value || "作者";
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+            const pageSize = 24;
+            const pages = [];
+            for (let i = 0; i < shots.length; i += pageSize) pages.push(shots.slice(i, i+pageSize));
+            for (let pageIdx = 0; pageIdx < pages.length; pageIdx++) {
+                const pageShots = pages[pageIdx];
+                const gridDiv = document.createElement('div');
+                gridDiv.style.width = '1123px';
+                gridDiv.style.backgroundColor = 'white';
+                gridDiv.style.padding = '20px';
+                gridDiv.style.display = 'grid';
+                gridDiv.style.gridTemplateColumns = 'repeat(6, 1fr)';
+                gridDiv.style.gap = '12px';
+                for (let shot of pageShots) {
+                    const card = document.createElement('div');
+                    card.style.border = '1px solid #aaa';
+                    card.style.borderRadius = '8px';
+                    card.style.padding = '8px';
+                    card.style.background = '#fefefe';
+                    card.style.fontSize = '12px';
+                    const imgHtml = shot.imageData ? `<img src="${shot.imageData}" style="width:100%; aspect-ratio:4/3; object-fit:cover;">` : `<div style="background:#ddd; height:90px; display:flex; align-items:center; justify-content:center;">无图像</div>`;
+                    card.innerHTML = `<div><b>${escapeHtml(shot.number)}</b> | ${escapeHtml(shot.sceneType)}</div>
+                        <div>🎥 ${escapeHtml(shot.motion)}</div>
+                        ${imgHtml}
+                        <div><small>📝 ${escapeHtml(shot.note)} | ⏱️ ${escapeHtml(shot.duration)}</small></div>`;
+                    gridDiv.appendChild(card);
+                }
+                for (let i = pageShots.length; i < pageSize; i++) {
+                    const empty = document.createElement('div');
+                    empty.style.border = '1px dashed #ccc';
+                    empty.style.padding = '8px';
+                    empty.style.minHeight = '140px';
+                    empty.innerText = '待补充';
+                    gridDiv.appendChild(empty);
+                }
+                document.body.appendChild(gridDiv);
+                try {
+                    const canvas = await html2canvas(gridDiv, { scale: 2, backgroundColor: '#ffffff' });
+                    const link = document.createElement('a');
+                    link.download = `${dateStr}-${String(pageIdx+1).padStart(3,'0')}-${drama}-${author}.png`;
+                    link.href = canvas.toDataURL();
+                    link.click();
+                } catch(e) { console.error(e); showToast("导出失败"); }
+                gridDiv.remove();
+                await new Promise(r => setTimeout(r, 200));
+            }
+            showToast(`导出 ${pages.length} 页完成`);
+        }
+        
+        function exportJSON() {
+            const data = shots.map(s => ({ number:s.number, sceneType:s.sceneType, motion:s.motion, motionData:s.motionData, imageData:s.imageData, note:s.note, duration:s.duration, extra:s.extra, x:s.x, y:s.y }));
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+            const link = document.createElement('a');
+            link.download = `storyboard_${Date.now()}.json`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            showToast("导出JSON成功");
+        }
+
+        // 视图控制
+        function updateTransform() { container.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`; }
+        
+        function initEvents() {
+            workspace.addEventListener('wheel', (e) => {
+                const delta = e.deltaY > 0 ? 0.9 : 1.1;
+                const ns = Math.min(2.5, Math.max(0.4, scale * delta));
+                const rect = workspace.getBoundingClientRect();
+                const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+                const wx = (mx - panX) / scale, wy = (my - panY) / scale;
+                scale = ns;
+                panX = mx - wx * scale;
+                panY = my - wy * scale;
+                updateTransform();
+                e.preventDefault();
+            }, { passive: false });
+            
+            workspace.addEventListener('mousedown', (e) => {
+                if (e.button === 1) {
+                    isPanning = true;
+                    panStart = { x: e.clientX - panX, y: e.clientY - panY };
+                    workspace.style.cursor = 'grabbing';
+                    e.preventDefault();
+                } else if (e.button === 0 && e.target === workspace) {
+                    selectedShotIds.clear();
+                    renderAllShots();
+                    isSelecting = true;
+                    const rect = workspace.getBoundingClientRect();
+                    selectionStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+                    selectionRect = document.createElement('div');
+                    selectionRect.className = 'selection-rect';
+                    workspace.appendChild(selectionRect);
+                    e.preventDefault();
+                }
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    panX = e.clientX - panStart.x;
+                    panY = e.clientY - panStart.y;
+                    updateTransform();
+                } else if (isSelecting && selectionRect) {
+                    const rect = workspace.getBoundingClientRect();
+                    const curX = e.clientX - rect.left, curY = e.clientY - rect.top;
+                    const left = Math.min(selectionStart.x, curX);
+                    const top = Math.min(selectionStart.y, curY);
+                    selectionRect.style.left = left + 'px';
+                    selectionRect.style.top = top + 'px';
+                    selectionRect.style.width = Math.abs(curX - selectionStart.x) + 'px';
+                    selectionRect.style.height = Math.abs(curY - selectionStart.y) + 'px';
+                }
+            });
+            
+            window.addEventListener('mouseup', (e) => {
+                if (isSelecting && selectionRect) {
+                    const rect = workspace.getBoundingClientRect();
+                    const startSel = selectionStart;
+                    const endSel = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+                    const minX = Math.min(startSel.x, endSel.x), maxX = Math.max(startSel.x, endSel.x);
+                    const minY = Math.min(startSel.y, endSel.y), maxY = Math.max(startSel.y, endSel.y);
+                    const newSelected = new Set();
+                    shots.forEach(shot => {
+                        const left = shot.x * scale + panX;
+                        const top = shot.y * scale + panY;
+                        const right = left + shot.width * scale;
+                        const bottom = top + shot.height * scale;
+                        if (right > minX && left < maxX && bottom > minY && top < maxY) newSelected.add(shot.id);
+                    });
+                    if (!e.ctrlKey) selectedShotIds.clear();
+                    newSelected.forEach(id => selectedShotIds.add(id));
+                    renderAllShots();
+                    selectionRect.remove();
+                    selectionRect = null;
+                    isSelecting = false;
+                }
+                if (isPanning) { isPanning = false; workspace.style.cursor = 'crosshair'; }
+            });
+            
+            workspace.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                if (e.target === workspace) showContextMenu(e.clientX, e.clientY);
+            });
+            
+            // 拖拽移动
+            let dragTarget = null, dragStartPos = {x:0,y:0}, dragStartShot = {x:0,y:0};
+            container.addEventListener('mousedown', (e) => {
+                const card = e.target.closest('.shot-card');
+                if (!card) return;
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+                e.stopPropagation();
+                const id = parseInt(card.dataset.id);
+                const shot = shots.find(s => s.id === id);
+                if (!shot) return;
+                dragTarget = shot;
+                dragStartPos = { x: e.clientX, y: e.clientY };
+                dragStartShot = { x: shot.x, y: shot.y };
+                isDragging = true;
+                dragRecorded = false;
+                document.body.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging && dragTarget) {
+                    const dx = (e.clientX - dragStartPos.x) / scale;
+                    const dy = (e.clientY - dragStartPos.y) / scale;
+                    dragTarget.x = dragStartShot.x + dx;
+                    dragTarget.y = dragStartShot.y + dy;
+                    renderAllShots();
+                    markDirty();
+                }
+            });
+            
+            window.addEventListener('mouseup', () => {
+                if (isDragging && dragTarget && !dragRecorded && (dragTarget.x !== dragStartShot.x || dragTarget.y !== dragStartShot.y)) {
+                    recordAction({ type: 'MOVE', shotId: dragTarget.id, oldX: dragStartShot.x, oldY: dragStartShot.y, newX: dragTarget.x, newY: dragTarget.y });
+                    dragRecorded = true;
+                }
+                isDragging = false;
+                dragTarget = null;
+                document.body.style.cursor = '';
+            });
+        }
+
+        // 全局粘贴图片（无镜头时创建新镜头）
+        window.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            let imageBlob = null;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    imageBlob = item.getAsFile();
+                    break;
+                }
+            }
+            if (!imageBlob) return;
+            e.preventDefault();
+            if (selectedShotIds.size > 0) {
+                const firstId = Array.from(selectedShotIds)[0];
+                const targetShot = shots.find(s => s.id === firstId);
+                if (targetShot) { setShotImage(targetShot, imageBlob); return; }
+            }
+            // 无选中，创建新镜头
+            const rect = workspace.getBoundingClientRect();
+            const cx = (rect.width/2 - panX)/scale;
+            const cy = (rect.height/2 - panY)/scale;
+            const newShot = createShot(cx - 180, cy - 125);
+            shots.push(newShot);
+            recordAction({ type: 'ADD', shotId: newShot.id, shotData: { ...newShot, id: null }, index: shots.length-1 });
+            renderAllShots();
+            setShotImage(newShot, imageBlob);
+        });
+
+        // 快捷键
+        window.addEventListener('keydown', (e) => {
+            const isEditing = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
+            if (e.ctrlKey && e.key === 'z' && !isEditing) { e.preventDefault(); undo(); }
+            else if (e.key === 'Tab' && !isEditing) { e.preventDefault(); autoArrange(); }
+            else if (e.ctrlKey && e.altKey && e.key === 'N') { e.preventDefault(); addShotAfterSelected(); }
+            else if (e.ctrlKey && e.key === 'c' && !isEditing) { copySelectedShots(); e.preventDefault(); }
+            else if (e.ctrlKey && e.key === 'v' && !isEditing) {
+                const rect = workspace.getBoundingClientRect();
+                const cx = (rect.width/2 - panX)/scale, cy = (rect.height/2 - panY)/scale;
+                pasteShotsAt(cx, cy);
+                e.preventDefault();
+            }
+            else if (e.ctrlKey && e.key === 'x' && !isEditing) { cutSelectedShots(); e.preventDefault(); }
+            else if (e.key === 'Delete' && !isEditing) { deleteSelectedShots(); e.preventDefault(); }
+        });
+
+        function newProject() {
+            if (dirtyFlag && !confirm("当前工程未保存，确定新建吗？数据将丢失。")) return;
+            shots = [];
+            selectedShotIds.clear();
+            nextId = 1;
+            const initShot = createShot(200, 150, "01");
+            shots.push(initShot);
+            historyPool = [];
+            historyPointer = -1;
+            renderAllShots();
+            resetDirty();
+            showToast("新建工程");
+        }
+
+        function init() {
+            workspace = document.getElementById('workspace');
+            container = document.getElementById('canvasContainer');
+            if (!workspace || !container) {
+                console.error('关键元素未找到');
+                return;
+            }
+            newProject();
+            initEvents();
+            bindEvents();
+            document.getElementById('newProjectBtn').onclick = () => newProject();
+            document.getElementById('newSceneBtn').onclick = () => newProject();
+            document.getElementById('addShotBtn').onclick = () => addShotAfterSelected();
+            document.getElementById('reorderNumberBtn').onclick = () => reorderShotNumbers();
+            document.getElementById('exportJsonBtn').onclick = () => exportJSON();
+            document.getElementById('exportPngBtn').onclick = () => exportStoryboardPNG();
+            document.getElementById('autoArrangeBtn').onclick = () => autoArrange();
+            document.getElementById('zoomInBtn').onclick = () => { scale = Math.min(2.5, scale+0.1); updateTransform(); };
+            document.getElementById('zoomOutBtn').onclick = () => { scale = Math.max(0.4, scale-0.1); updateTransform(); };
+            document.getElementById('resetViewBtn').onclick = () => { scale = 1; panX = 0; panY = 0; updateTransform(); };
+            const helpBtn = document.getElementById('helpBtn'), helpPanel = document.getElementById('helpPanel');
+            let helpVis = false;
+            helpBtn.onclick = () => { helpVis = !helpVis; helpPanel.style.display = helpVis ? 'block' : 'none'; };
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
+</script>
+</body>
+</html>
